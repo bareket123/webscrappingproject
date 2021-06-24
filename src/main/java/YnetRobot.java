@@ -82,9 +82,11 @@ public class YnetRobot extends BaseRobot {
     public String getLongestArticleTitle() {
         return null;
     }
-    private void insert(HashMap<String,Integer> wordsMap,String word,int value ){
+    /*private void insert(HashMap<String,Integer> wordsMap,String word,int value ){
         wordsMap.put(word,value);
 
 
     }
+
+     */
 }
