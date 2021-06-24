@@ -1,7 +1,6 @@
 import java.util.Map;
-
-import java.util.Map;
 public abstract class BaseRobot {
+
     private String rootWebsiteUrl;
 
     public BaseRobot(String rootWebsiteUrl) {
