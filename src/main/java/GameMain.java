@@ -3,7 +3,7 @@ import java.util.HashMap;
 public class GameMain {
     public static void main(String[] args) {
         MakoRobot makoRobot=new MakoRobot("https://www.mako.co.il/");
-        System.out.println("mako headlines:");
+        //System.out.println("mako headlines:");
        // makoRobot.getWordsStatistics();
         System.out.println("////////////////////////////////////////");
          WallaRobot wallaRobot =new WallaRobot("https://www.walla.co.il/");
