@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.Map;
 public abstract class BaseRobot {
 
@@ -17,7 +18,7 @@ public abstract class BaseRobot {
 
     public abstract Map<String, Integer> getWordsStatistics();
 
-    public abstract int countInArticlesTitles(String text);
+    public abstract int countInArticlesTitles(String text) throws IOException;
 
     public abstract String getLongestArticleTitle();
 
