@@ -6,142 +6,138 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WallaRobot extends BaseRobot{
+public class WallaRobot extends BaseRobot implements FixableText {
+
     private final ArrayList<String> allArticlesLinks=new ArrayList<>();
+
     public WallaRobot(String rootWebsiteUrl) {
         super(rootWebsiteUrl);
+        initLinks();
     }
 
     @Override
     public Map<String, Integer> getWordsStatistics() {
-        Map<String, Integer> wallaMap = new HashMap<>();
+        Map<String,Integer > wordsMap =new HashMap<>();
         int value;
-        String mainTitle,subTitle,articleBody;
-        StringBuilder fullText=new StringBuilder();
-        Document currentLink;
-        initLinks();
-        try {
-            for (String link : allArticlesLinks) {
-                currentLink= Jsoup.connect(link).get();
-                mainTitle =currentLink.getElementsByTag("h1").text() + " ";
-                subTitle=currentLink.getElementsByTag("p").get(0).text() + " ";
-                articleBody=currentLink.getElementsByClass("article-content").get(0).getElementsByTag("p").get(0).text() + " ";
-               // fullText.append(currentLink.getElementsByClass("css-onxvt4").get(0).getElementsByTag("p").get(0).text());
-                fullText.append(mainTitle);
-                fullText.append(subTitle);
-                fullText.append(articleBody);
-
-                String[] allTextOfArticles=fullText.toString().split(" ");
-                for (String word:allTextOfArticles) {
-                        if (wallaMap.containsKey(word)) {
-                            value = wallaMap.get(word) + 1;
-                        } else {
-                            value = 1;
-                        }
-                        wallaMap.put(word, value);
-                    }
+        for (String site : allArticlesLinks) {
+            String siteText;
+            siteText = returnLinkText(site);
+            siteText=correctWords(siteText);
+            String[] wordsOfArticle = siteText.split(" ");
+            for (String word : wordsOfArticle) {
+                if (wordsMap.containsKey(word)) {
+                    value = wordsMap.get(word) + 1;
+                } else {
+                    value = 1;
                 }
+                wordsMap.put(word, value);
+            }
 
-            }catch (IOException e){
-            e.printStackTrace();
         }
-
-           return wallaMap;
+        return wordsMap ;
 
     }
 
     @Override
-    public int countInArticlesTitles(String text) throws IOException {
-        Document currentLink;
-        String mainTitles,subtitles;
-        String [] titlesArray;
-        StringBuilder allTitles=new StringBuilder();
-        initLinks();
-        int textCounter=0;
-        for (String link:allArticlesLinks) {
-            currentLink=Jsoup.connect(link).get();
-            mainTitles =currentLink.getElementsByTag("h1").text() + " ";
-            subtitles=currentLink.getElementsByTag("p").get(0).text() + " ";
-            allTitles.append(mainTitles);
-            allTitles.append(subtitles);
-        }
-        titlesArray=allTitles.toString().split(" ");
-        for (String s : titlesArray) {
-            if (s.equals(text)) {
-                textCounter++;
+    public int countInArticlesTitles(String text){
+        int textCount = 0;String title;
+        try {
+            Document walla = Jsoup.connect(getRootWebsiteUrl()).get();
+        for (Element element : walla.getElementsByClass("with-roof ")) {
+            title = element.getElementsByTag("h2").text();
+            System.out.println(title);
+            if (title.contains(text)) {
+                textCount++;
             }
         }
-
-        return textCounter;
+        Element subtitlesElements = walla.getElementsByClass("css-1ugpt00 css-a9zu5q css-rrcue5 ").get(0);
+        for (Element smallTeasers : subtitlesElements.getElementsByTag("a")) {
+            title = smallTeasers.getElementsByTag("h3").text();
+            if (title.contains(text)){
+                textCount++;
+            }
+        }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return textCount;
     }
+
+
 
     @Override
     public String getLongestArticleTitle() {
-        Document currentLink;
-        StringBuilder articleText = new StringBuilder();
+        Document article;
         String longestArticleTitle = "";
-        int longestArticlesText = 0;
-        for (String link : allArticlesLinks) {
-            try {
-                currentLink = Jsoup.connect(link).get();
-                String title = currentLink.getElementsByTag("h1").text();
-                String article= currentLink.getElementsByClass("article-content").get(0).getElementsByTag("p").get(0).text();
-                /*for (Element articleBody : currentLink.getElementsByClass("article-content").get(0).getElementsByTag("p")) {
-                    articleText.append(articleBody.text());
-                    articleText.append(" ");
+        int longestArticleLength = 0;
+        try {
+            for (String site : allArticlesLinks) {
+                article = Jsoup.connect(site).get();
+                Element titleElements = article.getElementsByClass("item-main-content").get(0);
+                String title = titleElements.getElementsByTag("h1").get(0).text();
+                StringBuilder allText = new StringBuilder();
+                for (Element articleBody : article.getElementsByClass("css-onxvt4")) {
+                    allText.append(articleBody.text());
+                    allText.append(" ");
                 }
-
-                 */
-                articleText.append(article);
-                if (longestArticlesText < articleText.length()) {
-                    longestArticlesText = articleText.length();
+                if (longestArticleLength < allText.length()) {
+                    longestArticleLength = allText.length();
                     longestArticleTitle = title;
-
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
+        }catch (IOException e){
+            e.printStackTrace();
         }
         return longestArticleTitle;
     }
 
+
     private void initLinks(){
         try {
             Document wallaWebsite=Jsoup.connect(this.getRootWebsiteUrl()).get();
-            for (Element links : wallaWebsite.getElementsByClass("with-roof ")) {
+        for (Element links : wallaWebsite.getElementsByClass("with-roof")) {
                 allArticlesLinks.add(links.child(0).attributes().get("href"));
+
             }
             Element section = wallaWebsite.getElementsByClass("css-1ugpt00 css-a9zu5q css-rrcue5 ").get(0);
             for (Element smallTeasers : section.getElementsByTag("a")) {
                 allArticlesLinks.add(smallTeasers.attributes().get("href"));
             }
 
-
-
         }catch (IOException e){
             e.printStackTrace();
         }
 
+    }  public String returnLinkText(String link)  {
+        Document article;
+        String siteText = "";
+        StringBuilder allText = new StringBuilder(siteText);
+        try {
+            article = Jsoup.connect(link).get();
+            Element mainTitle = article.getElementsByClass("item-main-content").get(0);
+            allText.append(mainTitle.getElementsByTag("h1").get(0).text());
+            allText.append(" ");
+            for (Element subTitle : article.getElementsByClass("css-onxvt4")) {
+                allText.append(" ");
+                allText.append(subTitle.text());
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
-
-
-
-
-
+        return allText.toString();
     }
 
 
+    @Override
+    public String correctWords(String siteText) {
+        siteText = siteText.replaceAll("[-–•<>@&_%():,.?0-9]", " ");
+        siteText = siteText.replaceAll("\"\\s|\\s\"", " ");
+        siteText = siteText.replaceAll("\\s+", " ");
+        return siteText;
+    }
 
-
-
-
-
-
-
-
-
-
-
+    public ArrayList<String> getAllArticlesLinks() {
+        return allArticlesLinks;
+    }
 }
-
