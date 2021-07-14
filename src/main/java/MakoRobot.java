@@ -45,8 +45,8 @@ public class MakoRobot extends BaseRobot implements FixableText {
     public int countInArticlesTitles(String text) {
         int textCount = 0;
         try {
-            Document mako = Jsoup.connect(getRootWebsiteUrl()).get();
-            for (Element spanElements : mako.getElementsByTag("span")) {
+            Document makoWebsite = Jsoup.connect(getRootWebsiteUrl()).get();
+            for (Element spanElements : makoWebsite.getElementsByTag("span")) {
                 for (Element title : spanElements.getElementsByAttributeValue("data-type", "title")) {
                     if (title.text().contains(text)) {
                         textCount++;
@@ -141,7 +141,7 @@ public class MakoRobot extends BaseRobot implements FixableText {
         }
 
     }catch (IOException e){
-            e.printStackTrace();
+
         }
 
         return allText;

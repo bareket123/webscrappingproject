@@ -2,7 +2,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class GameMain {
-
     private static YnetRobot ynetRobot;
     private static MakoRobot makoRobot;
     private static WallaRobot wallaRobot;
@@ -11,9 +10,8 @@ public class GameMain {
         //Game itself
         Scanner scanner = new Scanner(System.in);
         int userScore=0;
-        String guessedWord="";
-        System.out.println("which website would you like to check out? (please enter a number 1-3) \n1.walla \n2.mako\n3.ynet ");
         try {
+        System.out.println("which website would you like to check out? (please enter a number 1-3) \n1.walla \n2.mako\n3.ynet ");
         int userChoice=scanner.nextInt();
             userChoice=invalidChoice(userChoice,Def.FIRST_OPTION,Def.LAST_OPTION);
             System.out.println("Guess what are the most common words on the site ");
@@ -50,12 +48,13 @@ public class GameMain {
                         }
                         break;
 
-
-        }
-
-    }catch (Exception e){
+            }
+        }catch (Exception e){
             e.printStackTrace();
         }
+
+
+
 
         System.out.println("\nyour total score is: " + userScore + " points, great job!!");
 
@@ -133,6 +132,9 @@ public class GameMain {
         int range=textAppeared-userGuess;
         if (range<0){
             range*=-1;
+        } if (textAppeared==0 && userGuess!=0){
+            System.out.println("unfortunately,your text doesn't appeared in the titles, you didn't get the bonus points ");
+            return ynetBonus;
         }
         if (userGuess==textAppeared || (range<=Def.RANGE && range>0) || range==userGuess+Def.RANGE ){
             ynetBonus=Def.BONUS_FOR_RIGHT_GUESS;
@@ -150,8 +152,11 @@ public class GameMain {
         int rangeGuesses=textCounter-userGuess;
         if (rangeGuesses<0){
             rangeGuesses*=-1;
+        }if (textCounter==0 && userGuess!=0){
+            System.out.println("unfortunately your text didn't appeared in the titles ,you didn't get the bonus points");
+            return makoBonus;
         }
-        if (userGuess==textCounter || (rangeGuesses<=2 && rangeGuesses>0) || rangeGuesses==textCounter+Def.RANGE ){
+        if (userGuess==textCounter || (rangeGuesses<=Def.RANGE && rangeGuesses>0) || rangeGuesses==textCounter+Def.RANGE ){
             System.out.println("Congratulation, you won 250 bonus points");
             makoBonus=Def.BONUS_FOR_RIGHT_GUESS;
         }else
@@ -163,6 +168,10 @@ public class GameMain {
         int wallaBonus=0;
         try {
             int textCounter=wallaRobot.countInArticlesTitles(guessedText);
+            if (textCounter==0 && userGuess!=0){
+                System.out.println("unfortunately,your text doesn't appeared in the titles, you didn't get the bonus points ");
+                return wallaBonus;
+            }
             int rangeGuesses=textCounter-userGuess;
             if (rangeGuesses<0){
                 rangeGuesses*=-1;
@@ -174,7 +183,7 @@ public class GameMain {
                 System.out.println("unfortunately, your guess isn't accurate, you didn't get the bonus points ");
 
         }catch (Exception e){
-            e.printStackTrace();
+           e.printStackTrace();
         }
 
         return wallaBonus;

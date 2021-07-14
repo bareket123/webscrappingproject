@@ -13,26 +13,33 @@ public class WallaRobot extends BaseRobot implements FixableText {
     public WallaRobot(String rootWebsiteUrl) {
         super(rootWebsiteUrl);
         initLinks();
+
     }
 
     @Override
-    public Map<String, Integer> getWordsStatistics() {
+    public Map<String, Integer> getWordsStatistics()  {
         Map<String,Integer > wordsMap =new HashMap<>();
         int value;
-        for (String site : allArticlesLinks) {
-            String siteText;
-            siteText = returnLinkText(site);
-            siteText=correctWords(siteText);
-            String[] wordsOfArticle = siteText.split(" ");
-            for (String word : wordsOfArticle) {
-                if (wordsMap.containsKey(word)) {
-                    value = wordsMap.get(word) + 1;
-                } else {
-                    value = 1;
-                }
-                wordsMap.put(word, value);
-            }
 
+        try {
+
+            for (String site : allArticlesLinks) {
+                String siteText;
+                siteText = returnLinkText(site);
+                siteText = correctWords(siteText);
+                String[] wordsOfArticle = siteText.split(" ");
+                for (String word : wordsOfArticle) {
+                    if (wordsMap.containsKey(word)) {
+                        value = wordsMap.get(word) + 1;
+                    } else {
+                        value = 1;
+                    }
+                    wordsMap.put(word, value);
+                }
+
+            }
+        }catch (Exception e){
+            //e.printStackTrace();
         }
         return wordsMap ;
 
@@ -73,25 +80,32 @@ public class WallaRobot extends BaseRobot implements FixableText {
         try {
             for (String site : allArticlesLinks) {
                 article = Jsoup.connect(site).get();
-                Element titleElements = article.getElementsByClass("item-main-content").get(0);
-                String title = titleElements.getElementsByTag("h1").get(0).text();
-                StringBuilder allText = new StringBuilder();
-                for (Element articleBody : article.getElementsByClass("css-onxvt4")) {
-                    allText.append(articleBody.text());
-                    allText.append(" ");
+                try {
+                    Element titleElements = article.getElementsByClass("item-main-content").get(0);
+                    String title = titleElements.getElementsByTag("h1").get(0).text();
+                    StringBuilder allText = new StringBuilder();
+                    for (Element articleBody : article.getElementsByClass("css-onxvt4")) {
+                        allText.append(articleBody.text());
+                        allText.append(" ");
+                    }
+                    if (longestArticleLength < allText.length()) {
+                        longestArticleLength = allText.length();
+                        longestArticleTitle = title;
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                     //e.printStackTrace();
                 }
-                if (longestArticleLength < allText.length()) {
-                    longestArticleLength = allText.length();
-                    longestArticleTitle = title;
-                }
+
+
             }
-        }catch (IOException e){
-            e.printStackTrace();
+        } catch (IOException e) {
+           // e.printStackTrace();
         }
+
         return longestArticleTitle;
+
+
     }
-
-
     private void initLinks(){
         try {
             Document wallaWebsite=Jsoup.connect(this.getRootWebsiteUrl()).get();
@@ -104,8 +118,8 @@ public class WallaRobot extends BaseRobot implements FixableText {
                 allArticlesLinks.add(smallTeasers.attributes().get("href"));
             }
 
-        }catch (IOException e){
-            e.printStackTrace();
+        }catch (Exception e){
+           e.printStackTrace();
         }
 
     }  public String returnLinkText(String link)  {

@@ -1,6 +1,8 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,8 +10,6 @@ import java.util.Map;
 
 public class YnetRobot extends BaseRobot implements FixableText {
     private final ArrayList<String> allArticlesLinks = new ArrayList<>();
-
-
     public YnetRobot(String rootWebsiteUrl) {
         super(rootWebsiteUrl);
         initLinks();
@@ -90,6 +90,7 @@ public class YnetRobot extends BaseRobot implements FixableText {
     }
     private void initLinks() {
         Document site;
+        String url;
         try {
         site = Jsoup.connect(this.getRootWebsiteUrl()).get();
         allArticlesLinks.add(site.getElementsByClass("slotTitle").get(0).child(0).attributes().get("href"));
@@ -97,15 +98,22 @@ public class YnetRobot extends BaseRobot implements FixableText {
         for (Element element : teasers.getElementsByClass("mediaItems")) {
             allArticlesLinks.add(element.child(0).child(0).attributes().get("href"));
         }
-        Element news = site.getElementsByClass("MultiArticleRowsManualComponenta").get(0);
-        for (Element mediaItems : news.getElementsByClass("mediaItems")) {
-            allArticlesLinks.add(mediaItems.child(0).child(0).attributes().get("href"));
-        }
-        for (Element slotTitle_small : news.getElementsByClass("slotTitle small")) {
-            allArticlesLinks.add(slotTitle_small.child(0).attributes().get("href"));
-        }
-        }catch (IOException e){
-            e.printStackTrace();
+            for (Element element:site.getElementsByAttributeValue("news/article","rel")) {
+                System.out.println(element.text());
+            }
+            for (Element slotsContent : site.getElementsByClass("MultiArticleRowsManualComponenta").get(0).getElementsByClass("slotsContent")) {
+                for (Element slotTitle_medium : slotsContent.getElementsByClass("slotTitle medium")) {
+                    url = slotTitle_medium.child(0).attributes().get("href");
+                    allArticlesLinks.add(url);
+                }
+                for (Element slotTitle_small : slotsContent.getElementsByClass("slotTitle small")) {
+                    url = slotTitle_small.child(0).attributes().get("href");
+                    allArticlesLinks.add(url);
+                }
+            }
+
+        }catch (Exception e){
+
         }
 
     }  private ArrayList <String> returnAllTitle(){
