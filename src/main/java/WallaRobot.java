@@ -122,7 +122,7 @@ public class WallaRobot extends BaseRobot implements FixableText {
            e.printStackTrace();
         }
 
-    }  public String returnLinkText(String link)  {
+    }  private String returnLinkText(String link)  {
         Document article;
         String siteText = "";
         StringBuilder allText = new StringBuilder(siteText);
